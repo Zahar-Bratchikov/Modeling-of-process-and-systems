@@ -2,65 +2,59 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Входные параметры
-num_counters = 10  # Количество касс
-processing_times = [90] * num_counters # Время обработки покупателя для каждой кассы (в секундах)
-arrival_rate = 0.7  # Средняя интенсивность потока покупателей (параметр "a")
-total_customers = 1000  # Общее количество покупателей
-simulations = 5000  # Количество симуляций для усреднения результатов
+num_counters = 3  # Количество касс
+processing_time = 180  # Время обработки покупателя для каждой кассы (в секундах)
+arrival_rate = 0.3  # Средняя интенсивность потока покупателей (параметр "a")
+total_customers = 500  # Общее количество покупателей
+simulations = 1000 # Количество симуляций для усреднения результатов
 
 # Функция для моделирования работы магазина
-def simulate_store(num_counters, processing_times, arrival_rate, total_customers):
-    # Инициализация параметров
-    service_end_times = np.zeros(num_counters)  # Время, до которого каждая касса занята
-    served_customers = np.zeros(num_counters)  # Обслуженные покупатели на каждой кассе
-    lost_customers = 0  # Количество потерянных покупателей
+def simulate_store(num_counters, processing_time, arrival_rate, total_customers):
+    service_end_times = np.zeros(num_counters)  # Состояние касс (время окончания обслуживания)
+    served_customers = np.zeros(num_counters)  # Количество обслуженных покупателей на каждой кассе
+    lost_customers = 0  # Общее количество потерянных покупателей
 
     current_time = 0  # Текущее время
 
-    # Симуляция потока покупателей
     for _ in range(total_customers):
-        # Время появления следующего покупателя
-        arrival_interval = -np.log(np.random.uniform()) / arrival_rate
-        current_time += arrival_interval
+        # Определяем интервал до следующего покупателя
+        current_time += -np.log(np.random.uniform()) / arrival_rate
 
-        # Поиск первой свободной кассы
+        # Проверяем свободные кассы
         free_counters = service_end_times <= current_time
-        if np.any(free_counters):
-            # Если есть свободная касса, выбираем первую свободную
-            available_counter = np.where(free_counters)[0][0]
-            service_end_times[available_counter] = current_time + processing_times[available_counter]
+        if free_counters.any():
+            # Обслуживаем покупателя на первой свободной кассе
+            available_counter = np.argmax(free_counters)  # Находим индекс первой свободной кассы
+            service_end_times[available_counter] = current_time + processing_time
             served_customers[available_counter] += 1
         else:
-            # Если свободных касс нет, покупатель уходит
+            # Все кассы заняты, покупатель уходит
             lost_customers += 1
 
     return served_customers, lost_customers
 
-# Многократное моделирование для усреднения результатов
-all_served_customers = []
-all_lost_customers = []
-
-for _ in range(simulations):
-    served, lost = simulate_store(num_counters, processing_times, arrival_rate, total_customers)
-    all_served_customers.append(served)
-    all_lost_customers.append(lost)
+# Многократное моделирование
+results = [simulate_store(num_counters, processing_time, arrival_rate, total_customers) for _ in range(simulations)]
+served_customers, lost_customers = zip(*results)
 
 # Усреднение результатов
-avg_served_customers = np.mean(all_served_customers, axis=0)
-avg_lost_customers = np.mean(all_lost_customers)
+avg_served_customers = np.mean(served_customers, axis=0)
+avg_lost_customers = np.mean(lost_customers)
 
 # Вывод результатов
 print("Среднее число обслуженных покупателей на кассах:")
 for i, val in enumerate(avg_served_customers, 1):
     print(f"Касса {i}: {val:.2f} человек")
-
 print(f"Среднее число потерянных покупателей: {avg_lost_customers:.2f} человек")
 
 # Визуализация результатов
 x = np.arange(1, num_counters + 1)
+
+plt.figure(figsize=(8, 5))
 plt.bar(x, avg_served_customers, color='lightgreen', label='Обслуженные покупатели')
 plt.xlabel('Кассы')
 plt.ylabel('Количество покупателей')
 plt.title('Среднее количество обслуженных покупателей на каждой кассе')
 plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.show()

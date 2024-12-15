@@ -97,7 +97,7 @@ def main():
     """проверка генерации и вывода одного или нескольких чисел"""
     # print("\n---------------------------------------------------------------\n")
     # random_numbers = lcg.generate(3)
-    # print(random_numbers[])
+    # print(random_numbers[1])
 
 if __name__ == "__main__":
     main()
