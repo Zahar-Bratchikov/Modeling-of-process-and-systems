@@ -1,40 +1,11 @@
-"""
-Основные переменные:
---------------------
-- num_cashiers: Количество касс.
-- processing_time: Время обслуживания одного покупателя (в минутах).
-- arrival_rate: Интенсивность прихода покупателей (среднее количество покупателей в минуту).
-- simulation_time: Время работы системы (в минутах).
-- experiments: Количество экспериментов для усреднения результатов.
-Классы и методы:
-----------------
-1. CashierSimulation:
-   Класс, моделирующий работу касс.
-   Методы:
-   - __init__(self, num_cashiers, processing_time, arrival_rate, simulation_time):
-     Инициализирует параметры модели, включая количество касс, время обслуживания, интенсивность прихода, время работы и массивы для отслеживания времени окончания обслуживания.
-   - generate_next_arrival(self):
-     Генерирует время до следующего прихода покупателя с использованием распределения экспоненциального типа.
-   - simulate(self):
-     Выполняет моделирование процесса обслуживания покупателей с учётом времени работы касс, времени обслуживания и прихода покупателей.
-   - results(self):
-     Возвращает результаты моделирования в виде словаря с количеством обслуженных и отвергнутых покупателей.
-2. main():
-   Основная функция:
-   - Задает параметры моделирования.
-   - Запускает несколько экспериментов и усредняет результаты.
-   - Строит график результатов моделирования работы касс, показывающий количество обслуженных покупателей и необслуженных.
-"""
-
-
 import random
 import math
 import matplotlib.pyplot as plt
 
 class CashierSimulation:
-    def __init__(self,  num_cashiers, processing_time, arrival_rate, simulation_time):
+    def __init__(self, num_cashiers, processing_times, arrival_rate, simulation_time):
         self.num_cashiers = num_cashiers
-        self.processing_time = processing_time
+        self.processing_times = processing_times
         self.arrival_rate = arrival_rate
         self.simulation_time = simulation_time
         self.cashier_end_times = [0] * num_cashiers
@@ -61,7 +32,7 @@ class CashierSimulation:
                     break
 
             if available_cashier != -1:
-                self.cashier_end_times[available_cashier] = current_time + self.processing_time
+                self.cashier_end_times[available_cashier] = current_time + self.processing_times[available_cashier]
                 self.served_customers[available_cashier] += 1
             else:
                 self.rejected_customers += 1
@@ -73,20 +44,19 @@ class CashierSimulation:
             "total_served": sum(self.served_customers)
         }
 
-
 def main():
     # Параметры моделирования
-    num_cashiers = 2  # количество касс
-    processing_time = 2 # время обслуживания в минутах
-    arrival_rate = 0.2 # интенсивность прихода покупателей (кол-во покупателей в минуту)
-    simulation_time = 240 # время работы
+    num_cashiers = 3  # количество касс
+    processing_times = [2, 3, 5]  # индивидуальное время обслуживания для каждой кассы (в минутах)
+    arrival_rate = 0.2  # интенсивность прихода покупателей (кол-во покупателей в минуту)
+    simulation_time = 240  # время работы
     experiments = 1000  # Количество экспериментов
 
     total_served = [0] * num_cashiers
     total_rejected = 0
 
     for _ in range(experiments):
-        simulation = CashierSimulation(num_cashiers, processing_time, arrival_rate, simulation_time)
+        simulation = CashierSimulation(num_cashiers, processing_times, arrival_rate, simulation_time)
         simulation.simulate()
         results = simulation.results()
         total_served = [x + y for x, y in zip(total_served, results["served_customers"])]
@@ -130,7 +100,6 @@ def main():
     plt.grid(axis='y', linestyle='--', alpha=0.7)
 
     plt.show()
-
 
 if __name__ == "__main__":
     main()
