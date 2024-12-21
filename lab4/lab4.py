@@ -2,6 +2,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 
+
 class CashierSimulation:
     def __init__(self, num_cashiers, processing_times, arrival_rate, simulation_time):
         self.num_cashiers = num_cashiers
@@ -44,11 +45,13 @@ class CashierSimulation:
             "total_served": sum(self.served_customers)
         }
 
+
 def main():
     # Параметры моделирования
-    num_cashiers = 3  # количество касс
-    processing_times = [2, 3, 5]  # индивидуальное время обслуживания для каждой кассы (в минутах)
-    arrival_rate = 0.2  # интенсивность прихода покупателей (кол-во покупателей в минуту)
+    num_cashiers = 10  # количество касс
+    processing_times = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19]  # индивидуальное время обслуживания для каждой кассы (в минутах)
+    #processing_times = [19, 17, 15, 13, 11, 9, 7, 5, 2, 3] # индивидуальное время обслуживания для каждой кассы (в минутах) в обратном порядке
+    arrival_rate = 0.8  # интенсивность прихода покупателей (кол-во покупателей в минуту)
     simulation_time = 240  # время работы
     experiments = 1000  # Количество экспериментов
 
@@ -100,6 +103,7 @@ def main():
     plt.grid(axis='y', linestyle='--', alpha=0.7)
 
     plt.show()
+
 
 if __name__ == "__main__":
     main()
